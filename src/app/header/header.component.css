@@ -1,0 +1,16 @@
+:host(app-header) {
+  width: 100%;
+  height: 118px;
+  background-color: #041e42;
+  padding: 16px;
+  display: block;
+  /*  display: flex;
+  flex-direction: row;*/
+  justify-content: space-between;
+  align-items: center;
+}
+
+.col-centered {
+  float: none;
+  margin: 0 auto;
+}
