@@ -2,13 +2,16 @@ import { Injectable } from '@angular/core';
 
 @Injectable()
 export class MessageService {
-  messages: string[] = [];
+  // type Message = { file: string; msg: string };
+  // messages: Map<string, string> = new Map<string, string>();
+  // messages = [];
+ public messages = new Map();
 
-  add(message: string) {
-    this.messages.push(message);
+  add(file: string, message: string) {
+    this.messages.set(file, message);
   }
 
-  clear() {
-    this.messages = [];
+  clear(file) {
+    this.messages.delete(file);
   }
 }

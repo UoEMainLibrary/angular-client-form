@@ -14,3 +14,19 @@ label {
   display: block;
   text-transform: uppercase;
 }
+
+input.ng-invalid.ng-touched {
+  border: 1px solid crimson;
+}
+
+.title {
+  font-family: Perpetua;
+  font-size: 28pt;
+  text-transform: uppercase;
+  padding: 0.5em;
+}
+
+.row {
+  margin-bottom: 10px;
+  padding-bottom: 1em;
+}

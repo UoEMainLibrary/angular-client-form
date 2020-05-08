@@ -1,27 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { UploaderService } from './file-upload.service';
+import {MessageService} from '../message.service';
 
 @Component({
   selector: 'app-file-upload',
   templateUrl: './file-upload.component.html',
-  styleUrls: ['./file-upload.component.css'],
+  styleUrls: ['./file-upload.component.css',
+    '../../../node_modules/bootstrap/dist/css/bootstrap.min.css',],
   providers: [ UploaderService ]
 })
 
 export class FileUploadComponent implements OnInit {
-  message: string;
 
-  constructor(private uploaderService: UploaderService) {}
+  constructor(private uploaderService: UploaderService, public messenger: MessageService) {}
 
   onPicked(input: HTMLInputElement) {
     const files = input.files;
+
     if (files) {
-      this.uploaderService.upload(files).subscribe(
-        msg => {
-          input.value = null;
-          this.message = msg;
-        }
-      );
+      for( let i = 0; i < files.length; i++) {
+        this.uploaderService.upload(this.messenger, files[i]).subscribe();
+      }
     }
   }
 
@@ -30,29 +29,3 @@ export class FileUploadComponent implements OnInit {
 
 }
 
-/*
-import { Component } from '@angular/core';
-import { UploaderService } from './uploader.service';
-
-@Component({
-  selector: 'app-uploader',
-  templateUrl: './uploader.component.html',
-  providers: [ UploaderService ]
-})
-export class UploaderComponent {
-  message: string;
-
-  constructor(private uploaderService: UploaderService) {}
-
-  onPicked(input: HTMLInputElement) {
-    const file = input.files[0];
-    if (file) {
-      this.uploaderService.upload(file).subscribe(
-        msg => {
-          input.value = null;
-          this.message = msg;
-        }
-      );
-    }
-  }
-}*/

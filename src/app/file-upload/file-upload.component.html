@@ -1,18 +1,24 @@
-<h3>Upload file</h3>
-<!--<form enctype="multipart/form-data" method="post">-->
-  <div>
-    <label for="file">Choose file to upload</label>
-    <div>
-      <input
-        type="file"
-        id="file"
-        name="file"
-        multiple="multiple"
-        ngModel
-        #picked
-        (click)="message=''"
-        (change)="onPicked(picked)">
-    </div>
+<div class="input-group">
+  <div class="input-group-prepend">
+    <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
   </div>
-  <p *ngIf="message">{{message}}</p>
-<!--</form>-->
+  <div class="custom-file">
+    <input type="file"
+           id="file"
+           name="file"
+           class="custom-file-input"
+           aria-describedby="inputGroupFileAddon01"
+           multiple="multiple"
+           class="form-control btn-default"
+           ngModel
+           #picked
+           (change)="onPicked(picked)">
+    <label class="custom-file-label" for="file">Choose one or more files</label>
+  </div>
+</div>
+<div class="input-group">
+  <p *ngFor="let message of messenger.messages | keyvalue"><span>{{message.value}}</span></p>
+</div>
+<div class="input-group">
+<p *ngIf="uploaderService.completed">{{uploaderService.completed}} / {{messenger.messages.size}}</p>
+</div>

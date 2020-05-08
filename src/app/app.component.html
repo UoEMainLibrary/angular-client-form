@@ -3,13 +3,22 @@
   <div class="row">
     <app-header></app-header>
   </div>
+
+  <div class="row">
+    <div class="col-lg-12 title">Collecting Covid-19</div>
+
+    <div class="col-lg-12" style="font-size: 14pt; padding-bottom: 1em; line-height: 1.5em;">Collecting of our experiences, people and places forward after then.
+      In the meantime the archives team are taking this initiative forward with Daryl.
+      It will be collect the shift, change and experience for the University's corporate memory - the archive over the coming period.
+      Its not a new idea, we have example of this happening in both World Wars and during other crises such as the HIV and AIDS campaigns in Scotland and the UK in the late 20th century. </div>
+  </div>
+
   <div class="row>">
     <!-- BEGIN FORM -->
     <form (ngSubmit)="onSubmit(f)" #f="ngForm">
-
       <div class="row" style="border: 1px dotted;">
         <div class="col-lg-12">
-
+          <h3>Donator information</h3>
           <div id="user-data">
             <div class="form-group">
               <label for="name">Full name</label>
@@ -21,7 +30,7 @@
                 name="name"
                 required>
             </div>
-            <!--<button class="btn btn-default" type="button">Suggest an name</button>-->
+
             <div class="form-group">
               <label for="email">Email</label>
               <input
@@ -51,12 +60,26 @@
             </select>
           </div>
           <span>I'm only shown when there's a story</span>
+          <input
+          type="hidden"
+          name="uid"
+          id="uid"
+          [(ngModel)]="uid"
+          class="form-control">
         </div>
       </div>
 
-      <app-file-upload></app-file-upload>
-
-      <button class="btn btn-primary" type="submit">Submit</button>
+      <div class="row" style="border: 1px dotted;">
+        <div class="col-lg-12">
+          <h3>Upload file(s)</h3>
+          <app-file-upload></app-file-upload>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12 d-flex flex-row-reverse">
+          <button class="btn btn-primary" type="submit">Submit</button>
+        </div>
+      </div>
 
 
     </form>

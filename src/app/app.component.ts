@@ -9,8 +9,11 @@ import {NgForm} from '@angular/forms';
 })
 export class AppComponent {
   title = 'Collecting Covid';
+  uid = Math.round(Math.random() * 100);
 
-  onSubmit(form:NgForm) {
+  // messages: Map<string, string> = new Map<string, string>();
+
+  onSubmit(form: NgForm) {
     console.log(form);
   }
 
