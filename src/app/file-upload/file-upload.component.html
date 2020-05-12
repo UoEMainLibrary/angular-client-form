@@ -1,3 +1,4 @@
+<h3>{{messenger.uploadMessage}}</h3>
 <div class="input-group">
   <div class="input-group-prepend">
     <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
@@ -6,19 +7,22 @@
     <input type="file"
            id="file"
            name="file"
-           class="custom-file-input"
+           class="custom-file-input form-control btn-default"
            aria-describedby="inputGroupFileAddon01"
            multiple="multiple"
-           class="form-control btn-default"
            ngModel
            #picked
            (change)="onPicked(picked)">
-    <label class="custom-file-label" for="file">Choose one or more files</label>
+    <label class="custom-file-label" for="file">{{messenger.uploadFiles}}</label>
   </div>
 </div>
 <div class="input-group">
-  <p *ngFor="let message of messenger.messages | keyvalue"><span>{{message.value}}</span></p>
+  <div *ngFor="let message of messenger.messages | keyvalue" class="col-10">
+    <div class="upload-progress" style="width: {{message.value.percent}}%;"></div>
+    <span class="upload-progress-msg">{{message.value.msg}}</span>
+  </div>
 </div>
 <div class="input-group">
-<p *ngIf="uploaderService.completed">{{uploaderService.completed}} / {{messenger.messages.size}}</p>
+  <!--{{uid}}
+<p *ngIf="uploaderService.completed">Uploaded {{uploaderService.completed}} / {{messenger.messages.size}}</p>-->
 </div>

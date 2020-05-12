@@ -7,10 +7,24 @@
   <div class="row">
     <div class="col-lg-12 title">Collecting Covid-19</div>
 
-    <div class="col-lg-12" style="font-size: 14pt; padding-bottom: 1em; line-height: 1.5em;">Collecting of our experiences, people and places forward after then.
-      In the meantime the archives team are taking this initiative forward with Daryl.
-      It will be collect the shift, change and experience for the University's corporate memory - the archive over the coming period.
-      Its not a new idea, we have example of this happening in both World Wars and during other crises such as the HIV and AIDS campaigns in Scotland and the UK in the late 20th century. </div>
+    <div class="col-lg-12" style="font-size: 14pt; padding-bottom: 1em; line-height: 1.5em;">
+      <p>The University of Edinburgh Archives invites you to contribute your experiences of and responses to the COVID-19 pandemic.
+        We are collecting all kinds of records that provide evidence of how University of Edinburgh life has been, and continues to be, affected.
+        These include but are not limited to videos, photographs, creative projects, audio recordings, journals and diaries.
+        Our collecting aims to provide a lasting collective memory of the University of Edinburgh community experience which will be an important resource for researchers in the years and decades to come.</p>
+
+      <p>Please read this form carefully and fill in the information as fully as you can before submitting it and any records. Some fields are required* while others are optional.</p>
+
+    <ul>
+      <li>Please only submit material created by you and not copied from or based (in whole or in part) upon any other photographic, literary, or other material, except to the extent that such material is in the public domain, or you have permission of the copyright owner, or its use is allowed by "Fair Dealing" as prescribed by the terms of UK copyright law.</li>
+
+      <li>Please carefully consider confidentiality, privacy and intellectual property law before submitting material.</li>
+
+      <li>Your name and email address will be recorded when you upload the file as part of or confidential and secure collections management information.</li>
+    </ul>
+
+
+         </div>
   </div>
 
   <div class="row>">
@@ -18,35 +32,66 @@
     <form (ngSubmit)="onSubmit(f)" #f="ngForm">
       <div class="row" style="border: 1px dotted;">
         <div class="col-lg-12">
-          <h3>Donator information</h3>
-          <div id="user-data">
-            <div class="form-group">
-              <label for="name">Full name</label>
-              <input
-                type="text"
-                id="name"
-                class="form-control"
-                ngModel
-                name="name"
-                required>
-            </div>
+          <h3>Contributor information</h3>
 
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                class="form-control"
-                ngModel
-                name="email"
-                required
-                email>
-              <!--<span class="help-block" *ngIf="!email.valid && email.touched">Please enter a valid email!</span>-->
-            </div>
-          </div>
           <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              class="form-control"
+              ngModel
+              name="email"
+              required
+              email
+              #email="ngModel">
+            <span class="help-block" *ngIf="!email.valid && email.touched">Please enter a valid email!</span>
+          </div>
+
+          <div class="form-group">
+            <label for="name">Full name</label>
+            <input
+              type="text"
+              id="name"
+              class="form-control"
+              ngModel
+              name="name"
+              required
+              #name="ngModel">
+            <span class="help-block" *ngIf="!name.valid && name.touched">Please enter a name!</span>
+          </div>
+
+          <div class="form-group">
+            <label for="location">Where are you now?</label>
+            <input
+              type="text"
+              id="location"
+              class="form-control"
+              [(ngModel)]="location"
+              #location_element
+              ngModel
+              name="location"
+              (focusin)="location='';"
+              (focusout)="(location_element.classList.contains('ng-pristine')) ? location = defaultValues.get('location'): null">
+          </div>
+
+          <div class="form-group">
+            <label for="name">What is your affiliation with the University of Edinburgh?<br/></label>
+            <input
+              type="text"
+              id="affiliation"
+              class="form-control"
+              [(ngModel)]="affiliation"
+              #affiliation_element
+              name="affiliation"
+              (focusin)="affiliation='';"
+              (focusout)="(affiliation_element.classList.contains('ng-pristine')) ? affiliation = defaultValues.get('affiliation'): null">
+          </div>
+
+          <!--<div class="form-group">
             <label for="content-type">Content type</label>
             <select
+              (change)="onChange($event.target.value)"
               class="form-control"
               id="content-type"
               name="content-type"
@@ -58,8 +103,38 @@
               <option value="poem">Poem</option>
               <option value="digital_initiative">Digital Initiative Bringing People Together</option>
             </select>
+            <span *ngIf="contentType=='story'">I'm only shown when there's a story</span>
+          </div>-->
+
+          <div class="form-group">
+            <label for="creator_y">Are you the sole creator of these materials?</label><br/>
+            <input type="radio" id="creator_y" name="creator" value="Yes" [(ngModel)]="creator"> <span>Yes</span>
+            <input type="radio" id="creator_n" name="creator" value="No" [(ngModel)]="creator"> <span>No</span>
+          <p *ngIf="creator==='No'">Please confirm that other creators have given consent to submit by
+            listing their full names and tell us how you came to have the materials.
+          Other creators:</p>
           </div>
-          <span>I'm only shown when there's a story</span>
+
+          <div class="form-group">
+            <label>What type of material are you uploading?</label><br/>
+              <input type="checkbox" name="content_type_photos"> <span>Photos</span><br/>
+              <input type="checkbox" name="content_type_videos"> <span>Videos</span><br/>
+              <input type="checkbox" name="content_type_audio"> <span>Audio</span><br/>
+              <input type="checkbox" name="content_type_text"> <span>Text</span><br/>
+              Other: <input type="text" name="other_content_type">
+          </div>
+
+          <div class="form-group">
+            <label>Description</label><br/>
+            <textarea
+              rows="8"
+              name="description"
+              [(ngModel)]="description"
+              #description_element
+              (focusin)="description='';"
+              (focusout)="(description_element.classList.contains('ng-pristine')) ? description = defaultValues.get('description'): null">{{ description }}</textarea>
+          </div>
+
           <input
           type="hidden"
           name="uid"
@@ -69,15 +144,16 @@
         </div>
       </div>
 
+
+
       <div class="row" style="border: 1px dotted;">
         <div class="col-lg-12">
-          <h3>Upload file(s)</h3>
-          <app-file-upload></app-file-upload>
+          <app-file-upload [uid]="uid"></app-file-upload>
         </div>
       </div>
       <div class="row">
         <div class="col-lg-12 d-flex flex-row-reverse">
-          <button class="btn btn-primary" type="submit">Submit</button>
+          <button class="btn btn-primary" type="submit" [disabled]="!f.form.valid">Submit</button>
         </div>
       </div>
 

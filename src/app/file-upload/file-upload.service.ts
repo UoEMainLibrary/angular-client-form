@@ -12,19 +12,18 @@ import { MessageService } from '../message.service';
 @Injectable()
 export class UploaderService {
   public messenger: MessageService;
-  public completed;
   constructor(
     private http: HttpClient) {}
 
-  upload(messenger: MessageService, file: File) {
+  upload(messenger: MessageService, uid: number, file: File) {
     if (!File) { return; }
     this.messenger = messenger;
-    this.completed = 0;
 
     const formData = new FormData();
     formData.append('file', file, file.name);
+    formData.append('uid', uid.toString());
 
-    const req = new HttpRequest('POST', 'http://127.0.0.1:8081/api/', formData, {reportProgress: true}, );
+    const req = new HttpRequest('POST', 'http://127.0.0.1:5000/api/', formData, {reportProgress: true}, );
 
     return this.http.request(req).pipe(
       map(event => this.getEventMessage(event, file)),
@@ -36,23 +35,26 @@ export class UploaderService {
 
   /** Return distinct message for sent, upload progress, & response events */
   private getEventMessage(event: HttpEvent<any>, file: File) {
-    // console.log(event);
+    const obj = { file: file.name, event: event.type, msg: '', percent: 100, };
     switch (event.type) {
       case HttpEventType.Sent:
-        return { file: file.name, msg: `Uploading file "${file.name}" of size ${file.size}.` };
-
+        obj.msg = `Uploading "${file.name}" of size ${file.size}.`;
+        break;
       case HttpEventType.UploadProgress:
         // Compute and show the % done:
-        const percentDone = Math.round(100 * event.loaded / event.total);
-        return { file: file.name, msg: `File "${file.name}" is ${percentDone}% uploaded.` };
-
+        obj.percent = Math.round(100 * event.loaded / event.total);
+        obj.msg = `"${file.name}" is ${obj.percent}% uploaded.`;
+        break;
       case HttpEventType.Response:
-        this.completed += 1;
-        return { file: file.name, msg: `File "${file.name}" was completely uploaded!` };
-
+        this.messenger.completed += 1;
+        this.messenger.uploadMessage = `Uploaded ${this.messenger.completed} / ${this.messenger.messages.size}`;
+        // obj.percent = 100;
+        obj.msg = `"${file.name}" was successfully uploaded.`;
+        break;
       default:
-        return { file: file.name, msg: `File "${file.name}" surprising upload event: ${event.type}.`};
+        obj.msg = `"${file.name}" surprising upload event: ${event.type}.`;
     }
+    return obj;
   }
 
   /**
@@ -73,7 +75,7 @@ export class UploaderService {
         error.error.message :
         `server returned code ${error.status} with body "${error.error}"`;
 
-      this.messenger.add(file.name, `${userMessage} ${message}`);
+      this.messenger.add(file.name, {msg: `${userMessage} ${message}`});
 
       // Let app keep running but indicate failure.
       return of(userMessage);
@@ -81,7 +83,7 @@ export class UploaderService {
   }
 
   private showProgress(message: any) {
-    this.messenger.add(message.file, message.msg);
+    this.messenger.add(message.file, message);
 
   }
 }
