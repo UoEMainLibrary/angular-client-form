@@ -1,4 +1,3 @@
-
 * {
   font-family: 'Source Sans Pro',sans-serif;
   color: #616161;
@@ -42,4 +41,17 @@ input.ng-invalid.ng-touched {
 
 textarea {
   width: 100%;
+}
+
+.radio-label {
+  font-weight: initial;
+  text-transform: initial;
+  font-size: initial;
+}
+
+.custom-radio, .custom-checkbox {
+  position: relative !important;
+  /*margin-left: initial !important;*/
+  margin: 0.5rem;
+
 }

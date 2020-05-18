@@ -1,0 +1,27 @@
+<div class="col-12">
+  <div class="form-row">
+    <div class="col-8">
+
+      <div class="input-group mb-2">
+        <div class="input-group-prepend">
+          <div class="input-group-text">{{id}}:</div>
+        </div>
+        <input type="text"
+               class="form-control"
+               id="additional_creator_{{id}}"
+               ngModel
+               name="additional_creator_{{id}}">
+      </div>
+
+    </div>
+    <div class="col-auto">
+      <button class="btn-sm btn-success"
+      (click)="addCreator()"
+      *ngIf="id == this.messenger.additionalcreators.length"><span class="oi oi-plus"></span></button>
+
+      <button class="btn-sm btn-danger"
+              (click)="removeCreator()"
+              *ngIf="id > 1 && id == this.messenger.additionalcreators.length"><span class="oi oi-delete"></span></button>
+
+    </div>
+  </div>

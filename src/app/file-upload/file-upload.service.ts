@@ -5,7 +5,7 @@ import {
 } from '@angular/common/http';
 
 import { of } from 'rxjs';
-import { catchError, last, map, tap } from 'rxjs/operators';
+import {catchError, last, map, tap} from 'rxjs/operators';
 
 import { MessageService } from '../message.service';
 
@@ -23,7 +23,7 @@ export class UploaderService {
     formData.append('file', file, file.name);
     formData.append('uid', uid.toString());
 
-    const req = new HttpRequest('POST', 'http://127.0.0.1:5000/api/', formData, {reportProgress: true}, );
+    const req = new HttpRequest('POST', 'http://127.0.0.1:5000/api/', formData, {reportProgress: true, responseType: 'json'});
 
     return this.http.request(req).pipe(
       map(event => this.getEventMessage(event, file)),
@@ -35,7 +35,8 @@ export class UploaderService {
 
   /** Return distinct message for sent, upload progress, & response events */
   private getEventMessage(event: HttpEvent<any>, file: File) {
-    const obj = { file: file.name, event: event.type, msg: '', percent: 100, };
+    const obj = { file: file.name, event: event.type, msg: '', percent: 100, body: null };
+
     switch (event.type) {
       case HttpEventType.Sent:
         obj.msg = `Uploading "${file.name}" of size ${file.size}.`;
@@ -49,6 +50,7 @@ export class UploaderService {
         this.messenger.completed += 1;
         this.messenger.uploadMessage = `Uploaded ${this.messenger.completed} / ${this.messenger.messages.size}`;
         // obj.percent = 100;
+        obj.body = event.body;
         obj.msg = `"${file.name}" was successfully uploaded.`;
         break;
       default:
@@ -75,7 +77,7 @@ export class UploaderService {
         error.error.message :
         `server returned code ${error.status} with body "${error.error}"`;
 
-      this.messenger.add(file.name, {msg: `${userMessage} ${message}`});
+      this.messenger.errors.push(error);
 
       // Let app keep running but indicate failure.
       return of(userMessage);
@@ -85,5 +87,12 @@ export class UploaderService {
   private showProgress(message: any) {
     this.messenger.add(message.file, message);
 
+  }
+
+  public reset() {
+    this.messenger.completed = 0;
+    this.messenger.messages.clear();
+    this.messenger.uploadMessage = 'Upload file(s)';
+    this.messenger.uploadFiles = 'Select one or more files';
   }
 }

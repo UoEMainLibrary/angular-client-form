@@ -1,8 +1,14 @@
 
-<div class="container">
+<div class="container-fluid">
   <div class="row">
     <app-header></app-header>
   </div>
+</div>
+
+<div class="container">
+  <!--<div class="row">
+    <app-header></app-header>
+  </div>-->
 
   <div class="row">
     <div class="col-lg-12 title">Collecting Covid-19</div>
@@ -15,152 +21,233 @@
 
       <p>Please read this form carefully and fill in the information as fully as you can before submitting it and any records. Some fields are required* while others are optional.</p>
 
-    <ul>
-      <li>Please only submit material created by you and not copied from or based (in whole or in part) upon any other photographic, literary, or other material, except to the extent that such material is in the public domain, or you have permission of the copyright owner, or its use is allowed by "Fair Dealing" as prescribed by the terms of UK copyright law.</li>
+      <ul>
+        <li>Please only submit material created by you and not copied from or based (in whole or in part) upon any other photographic, literary, or other material, except to the extent that such material is in the public domain, or you have permission of the copyright owner, or its use is allowed by "Fair Dealing" as prescribed by the terms of UK copyright law.</li>
 
-      <li>Please carefully consider confidentiality, privacy and intellectual property law before submitting material.</li>
+        <li>Please carefully consider confidentiality, privacy and intellectual property law before submitting material.</li>
 
-      <li>Your name and email address will be recorded when you upload the file as part of or confidential and secure collections management information.</li>
-    </ul>
-
-
-         </div>
+        <li>Your name and email address will be recorded when you upload the file as part of or confidential and secure collections management information.</li>
+      </ul>
+    </div>
   </div>
 
-  <div class="row>">
-    <!-- BEGIN FORM -->
-    <form (ngSubmit)="onSubmit(f)" #f="ngForm">
-      <div class="row" style="border: 1px dotted;">
-        <div class="col-lg-12">
-          <h3>Contributor information</h3>
+  <!-- BEGIN FORM -->
+  <form #f="ngForm">
 
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              class="form-control"
-              ngModel
-              name="email"
-              required
-              email
-              #email="ngModel">
-            <span class="help-block" *ngIf="!email.valid && email.touched">Please enter a valid email!</span>
-          </div>
+  <div class="row" style="border: 1px dotted;">
+    <div class="col-lg-12">
+      <h3>Contributor information</h3>
 
-          <div class="form-group">
-            <label for="name">Full name</label>
-            <input
-              type="text"
-              id="name"
-              class="form-control"
-              ngModel
-              name="name"
-              required
-              #name="ngModel">
-            <span class="help-block" *ngIf="!name.valid && name.touched">Please enter a name!</span>
-          </div>
-
-          <div class="form-group">
-            <label for="location">Where are you now?</label>
-            <input
-              type="text"
-              id="location"
-              class="form-control"
-              [(ngModel)]="location"
-              #location_element
-              ngModel
-              name="location"
-              (focusin)="location='';"
-              (focusout)="(location_element.classList.contains('ng-pristine')) ? location = defaultValues.get('location'): null">
-          </div>
-
-          <div class="form-group">
-            <label for="name">What is your affiliation with the University of Edinburgh?<br/></label>
-            <input
-              type="text"
-              id="affiliation"
-              class="form-control"
-              [(ngModel)]="affiliation"
-              #affiliation_element
-              name="affiliation"
-              (focusin)="affiliation='';"
-              (focusout)="(affiliation_element.classList.contains('ng-pristine')) ? affiliation = defaultValues.get('affiliation'): null">
-          </div>
-
-          <!--<div class="form-group">
-            <label for="content-type">Content type</label>
-            <select
-              (change)="onChange($event.target.value)"
-              class="form-control"
-              id="content-type"
-              name="content-type"
-              ngModel>
-              <option value="photos">Photo(s) of Handcrafted Responses</option>
-              <option value="story">Story of Lockdown Living</option>
-              <option value="tune">Tune</option>
-              <option value="song">Song</option>
-              <option value="poem">Poem</option>
-              <option value="digital_initiative">Digital Initiative Bringing People Together</option>
-            </select>
-            <span *ngIf="contentType=='story'">I'm only shown when there's a story</span>
-          </div>-->
-
-          <div class="form-group">
-            <label for="creator_y">Are you the sole creator of these materials?</label><br/>
-            <input type="radio" id="creator_y" name="creator" value="Yes" [(ngModel)]="creator"> <span>Yes</span>
-            <input type="radio" id="creator_n" name="creator" value="No" [(ngModel)]="creator"> <span>No</span>
-          <p *ngIf="creator==='No'">Please confirm that other creators have given consent to submit by
-            listing their full names and tell us how you came to have the materials.
-          Other creators:</p>
-          </div>
-
-          <div class="form-group">
-            <label>What type of material are you uploading?</label><br/>
-              <input type="checkbox" name="content_type_photos"> <span>Photos</span><br/>
-              <input type="checkbox" name="content_type_videos"> <span>Videos</span><br/>
-              <input type="checkbox" name="content_type_audio"> <span>Audio</span><br/>
-              <input type="checkbox" name="content_type_text"> <span>Text</span><br/>
-              Other: <input type="text" name="other_content_type">
-          </div>
-
-          <div class="form-group">
-            <label>Description</label><br/>
-            <textarea
-              rows="8"
-              name="description"
-              [(ngModel)]="description"
-              #description_element
-              (focusin)="description='';"
-              (focusout)="(description_element.classList.contains('ng-pristine')) ? description = defaultValues.get('description'): null">{{ description }}</textarea>
-          </div>
-
+      <div class="col-12">
+        <div class="form-group">
+          <label for="email">Email</label>
           <input
-          type="hidden"
-          name="uid"
-          id="uid"
-          [(ngModel)]="uid"
-          class="form-control">
+            type="email"
+            id="email"
+            class="form-control"
+            ngModel
+            name="email"
+            required
+            email
+            #email="ngModel">
+          <span class="help-block" *ngIf="!email.valid && email.touched">Please enter a valid email!</span>
         </div>
       </div>
 
-
-
-      <div class="row" style="border: 1px dotted;">
-        <div class="col-lg-12">
-          <app-file-upload [uid]="uid"></app-file-upload>
+      <div class="col-12">
+        <div class="form-group">
+          <label for="name">Full name</label>
+          <input
+            type="text"
+            id="name"
+            class="form-control"
+            ngModel
+            name="name"
+            required
+            #name="ngModel">
+          <span class="help-block" *ngIf="!name.valid && name.touched">Please enter a name!</span>
         </div>
       </div>
-      <div class="row">
-        <div class="col-lg-12 d-flex flex-row-reverse">
-          <button class="btn btn-primary" type="submit" [disabled]="!f.form.valid">Submit</button>
+
+      <div class="col-12">
+        <div class="form-group">
+          <label for="location">Where are you now?</label>
+          <input
+            type="text"
+            id="location"
+            class="form-control"
+            [(ngModel)]="location"
+            #location_element
+            ngModel
+            name="location"
+            (focusin)="location='';"
+            (focusout)="(location_element.classList.contains('ng-pristine')) ? location = messenger.defaultvalues.get('location'): null">
         </div>
       </div>
 
+      <div class="col-12">
+        <div class="form-group">
+          <label for="name">What is your affiliation with the University of Edinburgh?<br/></label>
+          <input
+            type="text"
+            id="affiliation"
+            class="form-control"
+            [(ngModel)]="affiliation"
+            #affiliation_element
+            name="affiliation"
+            (focusin)="affiliation='';"
+            (focusout)="(affiliation_element.classList.contains('ng-pristine')) ? affiliation = messenger.defaultvalues.get('affiliation'): null">
+        </div>
+      </div>
 
-    </form>
-    <!-- END FORM -->
+      <div class="col-12">
+        <div class="form-group">
+          <label>Are you the sole creator of these materials?</label><br/>
+          <div class="form-check">
+            <input type="radio"
+                   id="creator_y"
+                   name="creator"
+                   value="Yes"
+                   [(ngModel)]="creator"
+                   class="form-check-input custom-radio">
+            <label for="creator_y"
+                   class="form-check-label radio-label">Yes</label>
+          </div>
+          <div class="form-check">
+            <input type="radio"
+                   id="creator_n"
+                   name="creator"
+                   value="No"
+                   [(ngModel)]="creator"
+                   class="form-check-input custom-radio">
+            <label for="creator_n"
+                   class="form-check-label radio-label">No</label>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="creator==='No'" class="additional">
+        <p>Please confirm that other creators have given consent to submit by
+        listing their full names and tell us how you came to have the materials.</p>
+
+          <app-additional-creator *ngFor="let additionalCreator of messenger.additionalcreators"
+                                  [id]="additionalCreator"
+                                  [messenger]="messenger"></app-additional-creator>
+      </div>
+
+
+      <div class="col-12">
+        <div class="form-group">
+          <label>What type of material are you uploading?</label>
+          <div class="form-check">
+            <input type="checkbox"
+                   name="content_type_photos"
+                   id="content_type_photos"
+                   class="form-check-input custom-checkbox">
+            <label for="content_type_photos"
+                   class="form-check-label radio-label">Photos</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox"
+                   name="content_type_videos"
+                   id="content_type_videos"
+                   class="form-check-input custom-checkbox">
+            <label for="content_type_videos"
+                   class="form-check-label radio-label">Videos</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox"
+                   name="content_type_audio"
+                   id="content_type_audio"
+                   class="form-check-input custom-checkbox">
+            <label for="content_type_audio"
+              class="form-check-label radio-label">Audio</label>
+          </div>
+          <div class="form-check">
+            <input type="checkbox"
+                   name="content_type_text"
+                   id="content_type_text"
+                   class="form-check-input custom-checkbox">
+            <label for="content_type_text"
+              class="form-check-label radio-label">Text</label>
+          </div>
+          <div class="form-check" style="padding-left: 0;">
+            Other: <input type="text"
+                          name="other_content_type"
+                          id="other_content_type"
+                          ngModel
+                          class="form-control">
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="form-group">
+          <label>Description</label><br/>
+          <textarea
+            rows="8"
+            name="description"
+            [(ngModel)]="description"
+            #description_element
+            (focusin)="description='';"
+            (focusout)="(description_element.classList.contains('ng-pristine')) ? description = messenger.defaultvalues.get('description'): null">{{ description }}</textarea>
+        </div>
+      </div>
+
+      <input
+      type="hidden"
+      name="uid"
+      id="uid"
+      [(ngModel)]="uid"
+      class="form-control">
+    </div>
   </div>
+  </form>
+
+  <form>
+  <div class="row" style="border: 1px dotted;">
+    <div class="col-lg-12">
+      <app-file-upload [messenger]="messenger" [(uid)]="uid" #fileUploadComponent></app-file-upload>
+    </div>
+  </div>
+  <div class="row" *ngIf="messenger.errors.length">
+    <div class="col-lg-12">
+      <app-errormodal [messenger]="messenger"></app-errormodal>
+    </div>
+  </div>
+  </form>
+
+  <form #f2="ngForm">
+  <div class="row">
+  <div class="col-lg-12">
+    <re-captcha
+      [(ngModel)]="captcha"
+      name="captcha"
+      required
+      siteKey="6Lfx0PIUAAAAAI5XqYSOrGrYWX64VGaWkzZFwX84"
+    ></re-captcha>
+  </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12"> <div class="form-check">
+      <input type="checkbox"
+             name="send_receipt"
+             id="send_receipt"
+             class="form-check-input custom-checkbox">
+      <label for="content_type_text"
+             class="form-check-label radio-label">Send receipt to email address</label>
+    </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-12 d-flex flex-row-reverse">
+      <button class="btn btn-primary" type="submit" (click)="clickSubmit(f, f2)">Submit</button>
+    </div>
+  </div>
+  </form>
+
+<!-- END FORM -->
 </div>
 
 <router-outlet></router-outlet>

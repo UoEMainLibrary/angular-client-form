@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Host, Input, OnInit, Output} from '@angular/core';
 import { UploaderService } from './file-upload.service';
 import {MessageService} from '../message.service';
 
@@ -12,7 +12,10 @@ import {MessageService} from '../message.service';
 
 export class FileUploadComponent implements OnInit {
   @Input() uid: number;
-  constructor(private uploaderService: UploaderService, public messenger: MessageService) {}
+  @Output() uidChange = new EventEmitter<number>();
+  @Input() messenger: MessageService;
+
+  constructor(private uploaderService: UploaderService) {}
 
   onPicked(input: HTMLInputElement) {
     const files = input.files;
@@ -21,21 +24,37 @@ export class FileUploadComponent implements OnInit {
       return;
     }
 
+    // Reset errors from uploads
+    this.messenger.errors = [];
+
     let fileOrFiles = input.files.length.toString();
 
     if ( files.length === 1 ) {
-      fileOrFiles += ' file chosen';
+      fileOrFiles += ' file selected';
     }
     else {
-      fileOrFiles += ' files chosen';
+      fileOrFiles += ' files selected';
     }
 
     input.title = fileOrFiles;
     this.messenger.uploadFiles = fileOrFiles;
 
     for (let i = 0; i < files.length; i++) {
-      this.uploaderService.upload(this.messenger, this.uid, files[i]).subscribe();
+      this.uploaderService.upload(this.messenger, this.uid, files[i]).subscribe(resp => this.setUid(resp));
     }
+  }
+
+  reset() {
+    this.uploaderService.reset();
+  }
+
+  setUid(resp)  {
+    if (resp.body.dest_folder) {
+      this.uidChange.emit(resp.body.dest_folder);
+    }
+
+    console.log(this.uid);
+
   }
 
   ngOnInit(): void {
