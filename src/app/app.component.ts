@@ -1,101 +1,152 @@
 import {Component, ViewChild} from '@angular/core';
-import {NgForm} from '@angular/forms';
-import {HttpClient} from '@angular/common/http';
+import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {MessageService} from './message.service';
+import {coerceBooleanProperty} from '@angular/cdk/coercion';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css',
-    '../../node_modules/bootstrap/dist/css/bootstrap.min.css', ]
+    '../../node_modules/bootstrap/dist/css/bootstrap.min.css',
+    '../../node_modules/open-iconic/font/css/open-iconic-bootstrap.min.css']
 })
 export class AppComponent {
-  @ViewChild('f') f;
   @ViewChild('fileUploadComponent') fileUploadComponent;
-  title: string;
-  uid: number;
-  creator: string;
-  affiliation: string;
-  location: string;
-  description: string;
-  other_content_type: string;
-  captcha = null;
+  recaptchaValue: string;
 
-  constructor(private http: HttpClient, public messenger: MessageService) {
-    this.reset();
-    this.messenger.defaultvalues.set('affiliation', this.affiliation);
-    this.messenger.defaultvalues.set('location', this.location);
-    this.messenger.defaultvalues.set('description', this.description);
-    this.messenger.defaultvalues.set('other_content_type', this.other_content_type);
+  inputForm = this.fb.group({
+    email: ['', Validators.required],
+    name: ['', Validators.required],
+    uid: [''],
+    creator: ['', Validators.required],
+    affiliation: ['', Validators.required],
+    location: [''],
+    description: ['', Validators.required],
+    otherContentType: [''],
+    recaptchaReactive: [''],
+    content_type_photos: [''],
+    content_type_videos: [''],
+    content_type_audio: [''],
+    content_type_url: [''],
+    content_type_text: [''],
+    other_content_type: [''],
+    copy: ['', Validators.required],
+    content: this.fb.group( {
+      photos: [''],
+      videos: [''],
+      audio: [''],
+      url: [''],
+      text: [''],
+    }),
+    additionalCreators: this.fb.array([
+      this.fb.control('')
+    ]),
+    urls: this.fb.array([
+      this.fb.control('')
+    ])
+  });
 
+  get additionalCreators() {
+    return this.inputForm.get('additionalCreators') as FormArray;
   }
 
-  reset() {
-    this.title = 'Collecting Covid';
-    this.uid = 0;
-    this.creator = '';
-    this.affiliation = '(e.g. 1st year veterinary student, language assistant, lecturer in biological sciences, project assistant, caterer, academic librarian, cleaner…)';
-    this.location = 'In Edinburgh, the UK, another part of the world?';
-    this.description = 'Please describe the material including locations, events, dates.';
-    this.other_content_type = '';
-    this.captcha = null;
+  addAdditionalCreator() {
+    this.additionalCreators.push(this.fb.control(''));
   }
 
-  setUid(uid: number) {
-    this.uid = uid;
+  removeAdditionalCreator() {
+    this.additionalCreators.removeAt(this.additionalCreators.length - 1);
   }
 
-  resetForm(form) {
-    for (const fcname in form.controls) {
-      const fc = form.controls[fcname.valueOf()];
-      fc.enable();
+  setUid(uid) {
+    this.inputForm.controls.uid.setValue(uid);
+  }
 
-      if (!this.messenger.defaultvalues.has(fcname.valueOf())) {
-        fc.reset();
-      }
-      else {
-        fc.reset();
-        fc.value = this.messenger.defaultvalues.get(fcname.valueOf());
-      }
+  get depositURL()  {
+    return this.inputForm.controls.content_type_url.value;
+  }
 
+  get urls() {
+    return this.inputForm.get('urls') as FormArray;
+  }
+
+  addURL() {
+    this.urls.push(this.fb.control(''));
+  }
+
+  removeURL() {
+    this.urls.removeAt(this.urls.length - 1);
+  }
+
+  get isreCaptchaValid()  {
+    return this.inputForm.controls.recaptchaReactive.valid && this.recaptchaValue;
+  }
+
+  get isNameValid() {
+    return this.inputForm.controls.name.untouched || this.inputForm.controls.name.valid;
+  }
+
+  get isEmailValid() {
+    return this.inputForm.controls.email.untouched || this.inputForm.controls.email.valid;
+  }
+
+  get urlNotEmpty() {
+    return this.inputForm.controls.content_type_url.value && this.urls.controls[0].value ==! '';
+  }
+
+  get contentSelected() {
+    return this.inputForm.controls.content_type_photos.value || this.inputForm.controls.content_type_videos.value ||
+      this.inputForm.controls.content_type_audio.value || this.urlNotEmpty ||
+      this.inputForm.controls.content_type_text.value || this.inputForm.controls.other_content_type.value;
+  }
+
+  get isNotSoleCreator() {
+    return this.inputForm.controls.creator.value === 'No';
+  }
+
+  constructor(private http: HttpClient, private fb: FormBuilder, public messenger: MessageService) { }
+
+  reset(resp) {
+    if (resp.success) {
+      this.recaptchaValue = undefined;
+      this.inputForm.reset();
+      this.messenger.reset();
     }
-
-    // Which one should come first?
-    // should both be called?
-    this.fileUploadComponent.reset();
-    this.reset();
-    window.location.reload();
   }
 
-  clickSubmit(form: NgForm, form2: NgForm)  {
-    this.messenger.errors = [];
-    form.control.markAllAsTouched();
+  recaptcha(event)  {
+    this.http.get('http://localhost:5000/recaptcha/' + event).subscribe( data => this.setRecaptcha(data, event),);
 
+  }
+
+  setRecaptcha(data, event)  {
+    if(data.success)  {
+      this.recaptchaValue = event;
+    }
+  }
+
+  clickSubmit()  {
+    // Clear past errors
+    this.messenger.errors = [];
+
+    // Submission attempted, treat as traversed
+    this.inputForm.markAllAsTouched();
+
+    // Check if files are uploaded
     if (this.messenger.completed === 0) {
       this.messenger.errors.push(new Error('You haven\'t uploaded any files.'));
     }
 
-    if (!form2.valid) {
+    // Check if recaptcha has been done
+    if (!this.isreCaptchaValid) {
       this.messenger.errors.push(new Error('You haven\'t validated yourself as being human.'));
     }
-    else if (form.valid && this.messenger.completed > 0)  {
-      // Disable optional inputs left untouched
 
-      for (const fcname in form.controls) {
-        if (this.messenger.defaultvalues.has(fcname.valueOf()))  {
-          const fc = form.controls[fcname.valueOf()];
-
-          if (fc.value === this.messenger.defaultvalues.get(fcname.valueOf())) {
-            fc.disable();
-          }
-        }
-
-      }
-
-      const formData = new FormData(document.forms[0]);
-      const success = 'success';
-      this.http.post('http://127.0.0.1:5000/api/', formData).subscribe(resp => { if (resp[success]) {  window.location.reload(); } },
+    if (this.inputForm.valid)  {
+      this.http.post('http://localhost:5000/api/', JSON.stringify(this.inputForm.value)).subscribe(resp => { this.reset(resp); },
         error => this.messenger.errors.push(error));
+      console.log(JSON.stringify(this.inputForm.value));
 
     }
 

@@ -9,3 +9,7 @@
 .upload-progress-msg {
  margin: 1em;
 }
+
+h3 {
+  margin-bottom: 0.5em !important;
+}

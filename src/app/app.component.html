@@ -32,7 +32,7 @@
   </div>
 
   <!-- BEGIN FORM -->
-  <form #f="ngForm">
+  <form [formGroup]="inputForm">
 
   <div class="row" style="border: 1px dotted;">
     <div class="col-lg-12">
@@ -45,12 +45,11 @@
             type="email"
             id="email"
             class="form-control"
-            ngModel
             name="email"
             required
             email
-            #email="ngModel">
-          <span class="help-block" *ngIf="!email.valid && email.touched">Please enter a valid email!</span>
+            formControlName="email">
+          <span class="help-block" *ngIf="!isEmailValid ">Please enter a valid email!</span>
         </div>
       </div>
 
@@ -61,11 +60,10 @@
             type="text"
             id="name"
             class="form-control"
-            ngModel
             name="name"
             required
-            #name="ngModel">
-          <span class="help-block" *ngIf="!name.valid && name.touched">Please enter a name!</span>
+            formControlName="name">
+          <span class="help-block" *ngIf="!isNameValid">Please enter a name!</span>
         </div>
       </div>
 
@@ -76,27 +74,22 @@
             type="text"
             id="location"
             class="form-control"
-            [(ngModel)]="location"
-            #location_element
-            ngModel
-            name="location"
-            (focusin)="location='';"
-            (focusout)="(location_element.classList.contains('ng-pristine')) ? location = messenger.defaultvalues.get('location'): null">
+            formControlName="location"
+            placeholder="In Edinburgh, the UK, another part of the world?"
+            name="location">
         </div>
       </div>
 
       <div class="col-12">
         <div class="form-group">
-          <label for="name">What is your affiliation with the University of Edinburgh?<br/></label>
+          <label for="affiliation">What is your affiliation with the University of Edinburgh?<br/></label>
           <input
             type="text"
             id="affiliation"
             class="form-control"
-            [(ngModel)]="affiliation"
-            #affiliation_element
-            name="affiliation"
-            (focusin)="affiliation='';"
-            (focusout)="(affiliation_element.classList.contains('ng-pristine')) ? affiliation = messenger.defaultvalues.get('affiliation'): null">
+            formControlName="affiliation"
+            placeholder="(e.g. 1st year veterinary student, project assistant, caterer, academic librarian, cleaner…)"
+            name="affiliation">
         </div>
       </div>
 
@@ -108,7 +101,7 @@
                    id="creator_y"
                    name="creator"
                    value="Yes"
-                   [(ngModel)]="creator"
+                   formControlName="creator"
                    class="form-check-input custom-radio">
             <label for="creator_y"
                    class="form-check-label radio-label">Yes</label>
@@ -118,7 +111,7 @@
                    id="creator_n"
                    name="creator"
                    value="No"
-                   [(ngModel)]="creator"
+                   formControlName="creator"
                    class="form-check-input custom-radio">
             <label for="creator_n"
                    class="form-check-label radio-label">No</label>
@@ -126,13 +119,41 @@
         </div>
       </div>
 
-      <div *ngIf="creator==='No'" class="additional">
+      <div *ngIf="isNotSoleCreator" class="additional">
         <p>Please confirm that other creators have given consent to submit by
-        listing their full names and tell us how you came to have the materials.</p>
+        listing their full names and explain in the description field how you came to have the materials.</p>
 
-          <app-additional-creator *ngFor="let additionalCreator of messenger.additionalcreators"
-                                  [id]="additionalCreator"
-                                  [messenger]="messenger"></app-additional-creator>
+        <div formArrayName="additionalCreators">
+        <div class="col-12" *ngFor="let additionalCreator of additionalCreators.controls; let i=index">
+          <div class="form-row">
+            <div class="col-8">
+
+              <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                  <div class="input-group-text">{{i + 1}}:</div>
+                </div>
+                <input type="text"
+                       class="form-control"
+                       id="additional_creator_{{i}}"
+                       [formControlName]="i">
+              </div>
+
+            </div>
+            <div class="col-auto">
+              <button class="btn-sm btn-success"
+                      (click)="addAdditionalCreator()"
+                      *ngIf="(i + 1) == additionalCreators.controls.length"><span class="oi oi-plus"></span></button>
+
+              <button class="btn-sm btn-danger"
+                      (click)="removeAdditionalCreator()"
+                      *ngIf="i > 0 && (i + 1) == additionalCreators.controls.length"><span class="oi oi-delete"></span></button>
+
+            </div>
+          </div>
+        </div>
+        </div>
+          <!--<app-additional-creator *ngFor="let additionalCreator of this.additionalCreators"
+                                  ></app-additional-creator>-->
       </div>
 
 
@@ -142,40 +163,93 @@
           <div class="form-check">
             <input type="checkbox"
                    name="content_type_photos"
+                   formControlName="content_type_photos"
                    id="content_type_photos"
-                   class="form-check-input custom-checkbox">
+                   class="form-check-input custom-checkbox"
+                   [class.content-invalid]="this.inputForm.controls.content_type_photos.touched && !contentSelected">
             <label for="content_type_photos"
                    class="form-check-label radio-label">Photos</label>
           </div>
           <div class="form-check">
             <input type="checkbox"
                    name="content_type_videos"
+                   formControlName="content_type_videos"
                    id="content_type_videos"
-                   class="form-check-input custom-checkbox">
+                   class="form-check-input custom-checkbox"
+                   [class.content-invalid]="this.inputForm.controls.content_type_videos.touched && !contentSelected">
             <label for="content_type_videos"
                    class="form-check-label radio-label">Videos</label>
           </div>
           <div class="form-check">
             <input type="checkbox"
                    name="content_type_audio"
+                   formControlName="content_type_audio"
                    id="content_type_audio"
-                   class="form-check-input custom-checkbox">
+                   class="form-check-input custom-checkbox"
+                   [class.content-invalid]="this.inputForm.controls.content_type_audio.touched && !contentSelected">
             <label for="content_type_audio"
               class="form-check-label radio-label">Audio</label>
           </div>
           <div class="form-check">
             <input type="checkbox"
                    name="content_type_text"
+                   formControlName="content_type_text"
                    id="content_type_text"
                    class="form-check-input custom-checkbox">
             <label for="content_type_text"
               class="form-check-label radio-label">Text</label>
           </div>
+          <div class="form-check">
+            <input type="checkbox"
+                   name="content_type_url"
+                   formControlName="content_type_url"
+                   id="content_type_url"
+                   class="form-check-input custom-checkbox">
+            <label for="content_type_url"
+                   class="form-check-label radio-label">URL</label>
+          </div>
+
+          <div *ngIf="depositURL" class="additional">
+            <p>Please list any URLs you want to deposit:</p>
+
+            <div formArrayName="urls">
+              <div class="col-12" *ngFor="let url of urls.controls; let i=index">
+                <div class="form-row">
+                  <div class="col-8">
+
+                    <div class="input-group mb-2">
+                      <div class="input-group-prepend">
+                        <div class="input-group-text">{{i + 1}}:</div>
+                      </div>
+                      <input type="text"
+                             class="form-control"
+                             id="url_{{i}}"
+                             [formControlName]="i">
+                    </div>
+
+                  </div>
+                  <div class="col-auto">
+                    <button class="btn-sm btn-success"
+                            (click)="addURL()"
+                            *ngIf="(i + 1) == urls.controls.length"><span class="oi oi-plus"></span></button>
+
+                    <button class="btn-sm btn-danger"
+                            (click)="removeURL()"
+                            *ngIf="i > 0 && (i + 1) == urls.controls.length"><span class="oi oi-delete"></span></button>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--<app-additional-creator *ngFor="let additionalCreator of this.additionalCreators"
+                                    ></app-additional-creator>-->
+          </div>
+
           <div class="form-check" style="padding-left: 0;">
             Other: <input type="text"
                           name="other_content_type"
                           id="other_content_type"
-                          ngModel
+                          formControlName="otherContentType"
                           class="form-control">
           </div>
         </div>
@@ -183,14 +257,13 @@
 
       <div class="col-12">
         <div class="form-group">
-          <label>Description</label><br/>
+          <label for="description">Description</label><br/>
           <textarea
             rows="8"
             name="description"
-            [(ngModel)]="description"
-            #description_element
-            (focusin)="description='';"
-            (focusout)="(description_element.classList.contains('ng-pristine')) ? description = messenger.defaultvalues.get('description'): null">{{ description }}</textarea>
+            id="description"
+            formControlName="description"
+            placeholder="Please describe the material including locations, events, dates."></textarea>
         </div>
       </div>
 
@@ -198,51 +271,86 @@
       type="hidden"
       name="uid"
       id="uid"
-      [(ngModel)]="uid"
+      formControlName="uid"
       class="form-control">
     </div>
   </div>
-  </form>
-
-  <form>
+    <span *ngIf="!contentSelected">NOT!!!!</span>
   <div class="row" style="border: 1px dotted;">
     <div class="col-lg-12">
-      <app-file-upload [messenger]="messenger" [(uid)]="uid" #fileUploadComponent></app-file-upload>
+      <app-file-upload #fileUploadComponent
+                       (setUid)="setUid($event)"
+                       [uid]="this.inputForm.controls.uid.value"
+                       [messenger]="messenger"
+                       [recaptchaValue]="recaptchaValue"></app-file-upload>
     </div>
   </div>
-  <div class="row" *ngIf="messenger.errors.length">
+
+  <div class="row" style="border: 1px dotted;">
     <div class="col-lg-12">
-      <app-errormodal [messenger]="messenger"></app-errormodal>
-    </div>
-  </div>
-  </form>
+      <h3>Submission Agreement</h3>
 
-  <form #f2="ngForm">
-  <div class="row">
-  <div class="col-lg-12">
-    <re-captcha
-      [(ngModel)]="captcha"
-      name="captcha"
-      required
-      siteKey="6Lfx0PIUAAAAAI5XqYSOrGrYWX64VGaWkzZFwX84"
-    ></re-captcha>
-  </div>
-  </div>
+      <div class="col-12 form-text">
+        <div class="form-check">
+          <input type="radio"
+                 name="copy"
+                 formControlName="copy"
+                 id="copy"
+                 class="form-check-input custom-checkbox">
+          <label for="copy"
+                 class="form-check-label radio-label">Any copyrights I may possess in this material and am entitled to assign, are hereby assigned to the University of Edinburgh.</label>
+        </div>
 
-  <div class="row">
-    <div class="col-lg-12"> <div class="form-check">
-      <input type="checkbox"
-             name="send_receipt"
-             id="send_receipt"
-             class="form-check-input custom-checkbox">
-      <label for="content_type_text"
-             class="form-check-label radio-label">Send receipt to email address</label>
+        <div class="form-check">
+          <input type="radio"
+                 name="copy"
+                 formControlName="copy"
+                 id="copy2"
+                 class="form-check-input custom-checkbox">
+          <label for="copy2"
+                 class="form-check-label radio-label">I do not assign copyright to the University of Edinburgh and wish to be contacted about any requests for use to be made that is not for educational purposes.</label>
+        </div>
+
+        <p>I hereby grant to the University of Edinburgh permission to add the material to its archival collections and preserve it for future generations of students, scholars, and researchers. I give the University of Edinburgh Archives permission to make the materials accessible to researchers and staff (subject to data privacy laws).</p>
+
+        <h5>Acknowledgement of Persons Featured</h5>
+
+        <p>I acknowledge that any people featured in the materials have granted me their permission to record or photograph them and submit the files to the University of Edinburgh for inclusion in its archive.</p>
+
+        <h5>Personal Health Information Agreement</h5> 
+
+        <p>I understand and agree that the University of Edinburgh will collect, process and manage personal data in accordance with relevant data protection laws I agree not to include personally identifiable information of (or information that could allow a third party to identify) any others including other students or employees of the University of Edinburgh - this includes their personal health information.</p>
+
+        <p>By sending in this submission, you have read and agree to abide by the terms above.</p>
+
+      </div>       
+
     </div>
     </div>
-  </div>
+
+    <div class="row">
+      <div class="col-lg-12">
+        <re-captcha
+          formControlName="recaptchaReactive"
+          required
+          siteKey="6Lfx0PIUAAAAAI5XqYSOrGrYWX64VGaWkzZFwX84"
+          (resolved)="recaptcha($event)"
+        ></re-captcha>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="messenger.errors.length">
+      <div class="col-lg-12">
+        <app-errormodal [messenger]="messenger"></app-errormodal>
+      </div>
+    </div>
+
+
+
   <div class="row">
     <div class="col-lg-12 d-flex flex-row-reverse">
-      <button class="btn btn-primary" type="submit" (click)="clickSubmit(f, f2)">Submit</button>
+      <button class="btn btn-primary footer-btn" type="submit" (click)="clickSubmit()">Deposit</button>
+      <button class="btn btn-secondary btn-warning footer-btn" type="button" (click)="reset({success: true})">Reset</button>
     </div>
   </div>
   </form>

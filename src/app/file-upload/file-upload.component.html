@@ -1,4 +1,6 @@
 <h3>{{messenger.uploadMessage}}</h3>
+<div class="col-12">
+<div class="form-group">
 <div class="input-group">
   <div class="input-group-prepend">
     <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
@@ -12,7 +14,8 @@
            multiple="multiple"
            ngModel
            #picked
-           (change)="onPicked(picked)">
+           (change)="onPicked(picked)"
+           (click)="clicked()">
     <label class="custom-file-label" for="file">{{messenger.uploadFiles}}</label>
   </div>
 </div>
@@ -22,7 +25,5 @@
     <span class="upload-progress-msg">{{message.value.msg}}</span>
   </div>
 </div>
-<div class="input-group">
-  <!--{{uid}}
-<p *ngIf="uploaderService.completed">Uploaded {{uploaderService.completed}} / {{messenger.messages.size}}</p>-->
+</div>
 </div>

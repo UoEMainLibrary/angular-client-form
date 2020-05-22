@@ -17,11 +17,11 @@
     <div class="col-auto">
       <button class="btn-sm btn-success"
       (click)="addCreator()"
-      *ngIf="id == this.messenger.additionalcreators.length"><span class="oi oi-plus"></span></button>
+      *ngIf="id.toString() == 'this.messenger.additionalcreators.length'"><span class="oi oi-plus"></span></button>
 
       <button class="btn-sm btn-danger"
               (click)="removeCreator()"
-              *ngIf="id > 1 && id == this.messenger.additionalcreators.length"><span class="oi oi-delete"></span></button>
+              *ngIf="id > 1 && id.toString() == 'this.messenger.additionalcreators.length'"><span class="oi oi-delete"></span></button>
 
     </div>
   </div>

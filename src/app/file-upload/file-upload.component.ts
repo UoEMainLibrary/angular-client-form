@@ -1,6 +1,7 @@
 import {Component, EventEmitter, Host, Input, OnInit, Output} from '@angular/core';
 import { UploaderService } from './file-upload.service';
 import {MessageService} from '../message.service';
+import {FormControl} from '@angular/forms';
 
 @Component({
   selector: 'app-file-upload',
@@ -11,11 +12,19 @@ import {MessageService} from '../message.service';
 })
 
 export class FileUploadComponent implements OnInit {
-  @Input() uid: number;
-  @Output() uidChange = new EventEmitter<number>();
+  @Output() setUid = new EventEmitter<string>();
+  @Input() uid: string;
   @Input() messenger: MessageService;
+  @Input() recaptchaValue: string;
 
   constructor(private uploaderService: UploaderService) {}
+
+  clicked() {
+    if (!this.recaptchaValue) {
+      this.messenger.errors.push(new Error('You haven\'t validated yourself as being human.'));
+      return false;
+    }
+  }
 
   onPicked(input: HTMLInputElement) {
     const files = input.files;
@@ -40,20 +49,18 @@ export class FileUploadComponent implements OnInit {
     this.messenger.uploadFiles = fileOrFiles;
 
     for (let i = 0; i < files.length; i++) {
-      this.uploaderService.upload(this.messenger, this.uid, files[i]).subscribe(resp => this.setUid(resp));
+      this.uploaderService.upload(this.messenger, this.uid, files[i]).subscribe(resp => this.setAppUid(resp));
     }
   }
 
-  reset() {
-    this.uploaderService.reset();
-  }
+  /*reset() {
+    this.messenger.reset();
+  }*/
 
-  setUid(resp)  {
+  setAppUid(resp)  {
     if (resp.body.dest_folder) {
-      this.uidChange.emit(resp.body.dest_folder);
+      this.setUid.next(resp.body.dest_folder);
     }
-
-    console.log(this.uid);
 
   }
 

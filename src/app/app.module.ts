@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { FileUploadComponent } from './file-upload/file-upload.component';
 import { MessageService } from './message.service';
@@ -21,15 +21,16 @@ import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha';
     AdditionalCreatorComponent,
     ErrormodalComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    FormsModule,
-    HttpClientModule,
-    BrowserAnimationsModule,
-    RecaptchaModule,
-    RecaptchaFormsModule,
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        HttpClientModule,
+        BrowserAnimationsModule,
+        RecaptchaModule,
+        RecaptchaFormsModule,
+        ReactiveFormsModule,
+    ],
   providers: [ MessageService ],
   bootstrap: [AppComponent]
 })

@@ -8,6 +8,7 @@ import { of } from 'rxjs';
 import {catchError, last, map, tap} from 'rxjs/operators';
 
 import { MessageService } from '../message.service';
+import {FormControl} from '@angular/forms';
 
 @Injectable()
 export class UploaderService {
@@ -15,15 +16,16 @@ export class UploaderService {
   constructor(
     private http: HttpClient) {}
 
-  upload(messenger: MessageService, uid: number, file: File) {
+  upload(messenger: MessageService, uid: string, file: File) {
     if (!File) { return; }
     this.messenger = messenger;
 
     const formData = new FormData();
     formData.append('file', file, file.name);
-    formData.append('uid', uid.toString());
+    console.log(uid);
+    formData.append('uid', uid);
 
-    const req = new HttpRequest('POST', 'http://127.0.0.1:5000/api/', formData, {reportProgress: true, responseType: 'json'});
+    const req = new HttpRequest('POST', 'http://c4d75740.ngrok.io/api/', formData, {reportProgress: true, responseType: 'json'});
 
     return this.http.request(req).pipe(
       map(event => this.getEventMessage(event, file)),
@@ -89,10 +91,4 @@ export class UploaderService {
 
   }
 
-  public reset() {
-    this.messenger.completed = 0;
-    this.messenger.messages.clear();
-    this.messenger.uploadMessage = 'Upload file(s)';
-    this.messenger.uploadFiles = 'Select one or more files';
-  }
 }
