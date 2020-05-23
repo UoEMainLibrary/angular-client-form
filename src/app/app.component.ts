@@ -1,8 +1,8 @@
 import {Component, ViewChild} from '@angular/core';
-import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {MessageService} from './message.service';
-import {coerceBooleanProperty} from '@angular/cdk/coercion';
+import {requireCheckboxesToBeCheckedValidator} from './require-checkboxes-to-be-checked.validator';
 
 @Component({
   selector: 'app-root',
@@ -25,12 +25,12 @@ export class AppComponent {
     description: ['', Validators.required],
     otherContentType: [''],
     recaptchaReactive: [''],
-    content_type_photos: [''],
+    /*content_type_photos: [''],
     content_type_videos: [''],
     content_type_audio: [''],
     content_type_url: [''],
     content_type_text: [''],
-    other_content_type: [''],
+    other_content_type: [''],*/
     copy: ['', Validators.required],
     content: this.fb.group( {
       photos: [''],
@@ -38,7 +38,8 @@ export class AppComponent {
       audio: [''],
       url: [''],
       text: [''],
-    }),
+      otherContentType: ['']
+    }, { validator: this.requireOneCheckboxToBeChecked }),
     additionalCreators: this.fb.array([
       this.fb.control('')
     ]),
@@ -46,6 +47,34 @@ export class AppComponent {
       this.fb.control('')
     ])
   });
+
+  requireOneCheckboxToBeChecked(g: FormGroup) {
+    let checked = 0;
+    console.log(g.controls);
+
+    Object.keys(g.controls).forEach(key => {
+      const control = g.controls[key];
+
+      if (control.value === true) {
+        checked ++;
+      }
+    });
+
+    if (checked < 1) {
+      Object.keys(g.controls).forEach(key => {
+        const control = g.controls[key];
+
+        control.setErrors({ oneCheckboxRequired: true });
+
+      });
+    }
+
+    return false;
+  }
+
+  get content() {
+    return this.inputForm.get('content') as FormGroup;
+  }
 
   get additionalCreators() {
     return this.inputForm.get('additionalCreators') as FormArray;
@@ -64,7 +93,7 @@ export class AppComponent {
   }
 
   get depositURL()  {
-    return this.inputForm.controls.content_type_url.value;
+    return this.content.controls.url.value;
   }
 
   get urls() {
@@ -91,15 +120,15 @@ export class AppComponent {
     return this.inputForm.controls.email.untouched || this.inputForm.controls.email.valid;
   }
 
-  get urlNotEmpty() {
-    return this.inputForm.controls.content_type_url.value && this.urls.controls[0].value ==! '';
+  /*get urlNotEmpty() {
+    return this.inputForm.controls.url.value && this.urls.controls[0].value == ! '';
   }
 
   get contentSelected() {
-    return this.inputForm.controls.content_type_photos.value || this.inputForm.controls.content_type_videos.value ||
+    return true; this.inputForm.controls.content_type_photos.value || this.inputForm.controls.content_type_videos.value ||
       this.inputForm.controls.content_type_audio.value || this.urlNotEmpty ||
       this.inputForm.controls.content_type_text.value || this.inputForm.controls.other_content_type.value;
-  }
+  }*/
 
   get isNotSoleCreator() {
     return this.inputForm.controls.creator.value === 'No';
@@ -116,12 +145,12 @@ export class AppComponent {
   }
 
   recaptcha(event)  {
-    this.http.get('http://localhost:5000/recaptcha/' + event).subscribe( data => this.setRecaptcha(data, event),);
+    this.http.get('http://localhost:5000/recaptcha/' + event).subscribe( data => this.setRecaptcha(data, event), );
 
   }
 
   setRecaptcha(data, event)  {
-    if(data.success)  {
+    if (data.success)  {
       this.recaptchaValue = event;
     }
   }
