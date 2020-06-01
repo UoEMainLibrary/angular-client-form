@@ -7,6 +7,9 @@ export class MessageService {
   public uploadMessage = 'Upload file(s)';
   public uploadFiles = 'Select one or more files';
   public completed = 0;
+  public success = '';
+  public recaptchaFirst = '';
+  public upload = '';
 
   add(file: string, message: object) {
     this.messages.set(file, message);
@@ -19,6 +22,7 @@ export class MessageService {
   public reset() {
     this.completed = 0;
     this.messages.clear();
+    this.errors = [];
     this.uploadMessage = 'Upload file(s)';
     this.uploadFiles = 'Select one or more files';
   }

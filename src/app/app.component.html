@@ -27,6 +27,8 @@
         <li>Please carefully consider confidentiality, privacy and intellectual property law before submitting material.</li>
 
         <li>Your name and email address will be recorded when you upload the file as part of or confidential and secure collections management information.</li>
+
+        <li>Please note that all the fields are mandatory except for your current location. If there is any information missing a red border box will highlight the incomplete field and a warning message will appear.</li>
       </ul>
     </div>
   </div>
@@ -34,13 +36,13 @@
   <!-- BEGIN FORM -->
   <form [formGroup]="inputForm">
 
-  <div class="row" style="border: 1px dotted;">
+  <div class="row" style="border: 1px dotted;" id="form" #form>
     <div class="col-lg-12">
       <h3>Contributor information</h3>
 
       <div class="col-12">
         <div class="form-group">
-          <label for="email">Email</label>
+          <label for="email">Email *</label>
           <input
             type="email"
             id="email"
@@ -49,13 +51,13 @@
             required
             email
             formControlName="email">
-          <span class="help-block" *ngIf="!isEmailValid ">Please enter a valid email!</span>
+          <span class="help-block" *ngIf="!isValid('email')">Please enter a valid email!</span>
         </div>
       </div>
 
       <div class="col-12">
         <div class="form-group">
-          <label for="name">Full name</label>
+          <label for="name">Full name *</label>
           <input
             type="text"
             id="name"
@@ -63,7 +65,7 @@
             name="name"
             required
             formControlName="name">
-          <span class="help-block" *ngIf="!isNameValid">Please enter a name!</span>
+          <span class="help-block" *ngIf="!isValid('name')">Please enter a name!</span>
         </div>
       </div>
 
@@ -82,40 +84,42 @@
 
       <div class="col-12">
         <div class="form-group">
-          <label for="affiliation">What is your affiliation with the University of Edinburgh?<br/></label>
+          <label for="affiliation">What is your affiliation with the University of Edinburgh? *</label>
           <input
             type="text"
             id="affiliation"
             class="form-control"
             formControlName="affiliation"
-            placeholder="(e.g. 1st year veterinary student, project assistant, caterer, academic librarian, cleaner…)"
+            placeholder="e.g. 1st year veterinary student, project assistant, caterer, academic librarian, cleaner…"
             name="affiliation">
+          <span class="help-block" *ngIf="!isValid('affiliation')">Please enter your affiliation with the university!</span>
         </div>
       </div>
 
       <div class="col-12">
         <div class="form-group">
-          <label>Are you the sole creator of these materials?</label><br/>
+          <label>Are you the sole creator of these materials? *</label><br/>
           <div class="form-check">
+            <label for="creator_y"
+                   class="form-check-label radio-label">
             <input type="radio"
                    id="creator_y"
                    name="creator"
                    value="Yes"
                    formControlName="creator"
-                   class="form-check-input custom-radio">
-            <label for="creator_y"
-                   class="form-check-label radio-label">Yes</label>
+                   class="form-check-input custom-radio">Yes</label>
           </div>
           <div class="form-check">
+            <label for="creator_n"
+                   class="form-check-label radio-label">
             <input type="radio"
                    id="creator_n"
                    name="creator"
                    value="No"
                    formControlName="creator"
-                   class="form-check-input custom-radio">
-            <label for="creator_n"
-                   class="form-check-label radio-label">No</label>
+                   class="form-check-input custom-radio">No</label>
           </div>
+          <span class="help-block" *ngIf="!isValid('creator')">Please specify the content's creator!</span>
         </div>
       </div>
 
@@ -159,51 +163,56 @@
 
       <div class="col-12">
         <div class="form-group" formGroupName="content">
-          <label>What type of material are you uploading?</label>
+          <label>What type of material are you uploading? *</label>
           <div class="form-check">
-            <input type="checkbox"
+            <label for="photos"
+                   class="form-check-label radio-label">
+              <input type="checkbox"
                    name="photos"
                    formControlName="photos"
                    id="photos"
-                   class="form-check-input custom-checkbox">
-            <label for="photos"
-                   class="form-check-label radio-label">Photos</label>
+                   class="form-check-input custom-checkbox"
+                   (click)="unCheck()">Photos</label>
           </div>
           <div class="form-check">
-            <input type="checkbox"
+            <label for="videos"
+                   class="form-check-label radio-label">
+              <input type="checkbox"
                    name="videos"
                    formControlName="videos"
                    id="videos"
-                   class="form-check-input custom-checkbox">
-            <label for="videos"
-                   class="form-check-label radio-label">Videos</label>
+                   class="form-check-input custom-checkbox"
+                   (click)="unCheck()">Videos</label>
           </div>
           <div class="form-check">
+            <label for="audio"
+                   class="form-check-label radio-label">
             <input type="checkbox"
                    name="audio"
                    formControlName="audio"
                    id="audio"
-                   class="form-check-input custom-checkbox">
-            <label for="audio"
-              class="form-check-label radio-label">Audio</label>
+                   class="form-check-input custom-checkbox"
+                   (click)="unCheck()">Audio</label>
           </div>
           <div class="form-check">
+            <label for="text"
+                   class="form-check-label radio-label">
             <input type="checkbox"
                    name="text"
                    formControlName="text"
                    id="text"
-                   class="form-check-input custom-checkbox">
-            <label for="text"
-              class="form-check-label radio-label">Text</label>
+                   class="form-check-input custom-checkbox"
+                   (click)="unCheck()">Text</label>
           </div>
           <div class="form-check">
+            <label for="url"
+                   class="form-check-label radio-label">
             <input type="checkbox"
                    name="url"
                    formControlName="url"
                    id="url"
-                   class="form-check-input custom-checkbox">
-            <label for="url"
-                   class="form-check-label radio-label">URL</label>
+                   class="form-check-input custom-checkbox"
+                   (click)="selectUrl()">URL</label>
           </div>
 
           <div *ngIf="depositURL" class="additional">
@@ -249,18 +258,21 @@
                           formControlName="otherContentType"
                           class="form-control">
           </div>
+          <span class="help-block" *ngIf="!isValid('content')">Please specify the type of material you are depositing!</span>
         </div>
       </div>
 
       <div class="col-12">
         <div class="form-group">
-          <label for="description">Description</label><br/>
+          <label for="description">Description *</label><br/>
           <textarea
             rows="8"
             name="description"
             id="description"
+            class="form-control"
             formControlName="description"
-            placeholder="Please describe the material including locations, events, dates."></textarea>
+            placeholder="Tell us briefly about yourself, including information about your life just before the pandemic, and describe the material you are submitting. Please include the date(s) this material was created, and any relevant locations, events, and people involved."></textarea><!--placeholder="Please describe the material including locations, events, dates."-->
+          <span class="help-block" *ngIf="!isValid('description')">Please provide a description of the material you are depositing.</span>
         </div>
       </div>
 
@@ -272,14 +284,16 @@
       class="form-control">
     </div>
   </div>
-    <span *ngIf="content.errors">NOT!!!!</span>
+
   <div class="row" style="border: 1px dotted;">
     <div class="col-lg-12">
+      <div class="form-group">
       <app-file-upload #fileUploadComponent
                        (setUid)="setUid($event)"
                        [uid]="this.inputForm.controls.uid.value"
                        [messenger]="messenger"
                        [recaptchaValue]="recaptchaValue"></app-file-upload>
+      </div>
     </div>
   </div>
 
@@ -289,23 +303,25 @@
 
       <div class="col-12 form-text">
         <div class="form-check">
+          <label for="assign_copy"
+                 class="form-check-label radio-label">
           <input type="radio"
                  name="copy"
                  formControlName="copy"
-                 id="copy"
-                 class="form-check-input custom-checkbox">
-          <label for="copy"
-                 class="form-check-label radio-label">Any copyrights I may possess in this material and am entitled to assign, are hereby assigned to the University of Edinburgh.</label>
+                 id="assign_copy"
+                 value="assign"
+                 class="form-check-input custom-checkbox">Any copyrights I may possess in this material and am entitled to assign, are hereby assigned to the University of Edinburgh.</label>
         </div>
 
         <div class="form-check">
+          <label for="retain_copy"
+                 class="form-check-label radio-label">
           <input type="radio"
                  name="copy"
                  formControlName="copy"
-                 id="copy2"
-                 class="form-check-input custom-checkbox">
-          <label for="copy2"
-                 class="form-check-label radio-label">I do not assign copyright to the University of Edinburgh and wish to be contacted about any requests for use to be made that is not for educational purposes.</label>
+                 value="retain"
+                 id="retain_copy"
+                 class="form-check-input custom-checkbox">I do not assign copyright to the University of Edinburgh and wish to be contacted about any requests for use to be made that is not for educational purposes.</label>
         </div>
 
         <p>I hereby grant to the University of Edinburgh permission to add the material to its archival collections and preserve it for future generations of students, scholars, and researchers. I give the University of Edinburgh Archives permission to make the materials accessible to researchers and staff (subject to data privacy laws).</p>
@@ -325,14 +341,65 @@
     </div>
     </div>
 
+    <div class="row" style="border: 1px dotted;" [hidden]="!this.summary" id="summary" #summaryElement>
+      <div class="col-lg-12">
+          <h3>Summary</h3>
+          <div class="label">Email</div>
+          <div class="value">{{ this.inputForm.controls.email.value }}</div>
+
+          <div class="label">Name</div>
+          <div class="value">{{ this.inputForm.controls.name.value }}</div>
+
+          <div *ngIf="this.inputForm.controls.location.value">
+            <div class="label">Location</div>
+            <div class="value">{{ this.inputForm.controls.location.value }}</div>
+          </div>
+
+          <div class="label">Affiliation</div>
+          <div class="value">{{ this.inputForm.controls.affiliation.value }}</div>
+
+          <div class="label">Content creator</div>
+          <div *ngIf="this.inputForm.controls.creator.value === 'Yes'" class="value">You've identified yourself as the sole creator of the content.</div>
+          <div *ngIf="this.inputForm.controls.creator.value === 'No'">
+            <div class="value" *ngIf="additionalCreators.controls.length > 1">
+              <ul style="margin: 0;">
+                <li *ngFor="let additionalCreator of additionalCreators.controls; let i = index">{{ additionalCreator.value }}</li>
+              </ul>
+            </div>
+            <div class="value" *ngIf="additionalCreators.controls.length === 1">{{ additionalCreators.controls[0].value }}</div>
+          </div>
+
+          <div class="label">Type of content</div>
+          <div class="value">{{ this.contentSummary }}
+          <ul *ngIf="this.urls.controls.length > 0">
+            <li *ngFor="let url of urls.controls; let i = index">{{ url.value }}</li>
+          </ul>
+          </div>
+
+          <div class="label">Description:</div>
+          <div class="value">{{ this.inputForm.controls.description.value }}</div>
+
+        <div *ngIf="this.messenger.completed > 0">
+        <div class="label">Uploaded {{ this.messenger.completed }} files.</div>
+        <div class="value">
+        <div *ngFor="let message of messenger.messages | keyvalue" class="col-11">
+            <span class="upload-progress-msg">{{message.value.file}} ({{ humanFileSize(message.value.size) }})</span>
+          </div></div>
+        </div>
+      </div>
+    </div>
+
+
     <div class="row">
       <div class="col-lg-12">
+        <div [class.content-invalid]="!isValid('recaptchaReactive')">
         <re-captcha
           formControlName="recaptchaReactive"
           required
           siteKey="6Lfx0PIUAAAAAI5XqYSOrGrYWX64VGaWkzZFwX84"
           (resolved)="recaptcha($event)"
         ></re-captcha>
+        </div>
       </div>
     </div>
 
@@ -342,17 +409,28 @@
       </div>
     </div>
 
-
+    <div class="row" *ngIf="messenger.success !== ''">
+      <div class="col-lg-12">
+        <div class="bg-success" style="border-radius: 25px; background-color: rgba(0, 255, 0, 0.2); color: #fff; padding: 1em; margin: 1em;">
+          <span class="oi oi-check" style="margin-left: 2em; font-size: 28px;"></span>&nbsp;<span style="font-size: 25px; color: #fff; margin-left: 0.6em;">Form successfully deposited</span>
+          <div style="color: #fff; margin: 1em;">
+            {{ messenger.success }}
+          </div>
+        </div>
+      </div>
+    </div>
 
   <div class="row">
     <div class="col-lg-12 d-flex flex-row-reverse">
-      <button class="btn btn-primary footer-btn" type="submit" (click)="clickSubmit()">Deposit</button>
-      <button class="btn btn-secondary btn-warning footer-btn" type="button" (click)="reset({success: true})">Reset</button>
+      <button class="btn btn-primary footer-btn submit" type="button" (click)="confirmDeposit()">{{ this.summary ? 'Confirm deposit': 'Deposit' }}</button>
+      <button class="btn btn-secondary btn-warning footer-btn" type="button" (click)="reset(true)">Reset</button>
     </div>
   </div>
   </form>
 
 <!-- END FORM -->
 </div>
+
+<div>&nbsp;</div>
 
 <router-outlet></router-outlet>

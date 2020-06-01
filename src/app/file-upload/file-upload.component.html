@@ -1,6 +1,6 @@
 <h3>{{messenger.uploadMessage}}</h3>
 <div class="col-12">
-<div class="form-group">
+<div class="form-group" [class.invalid]="this.messenger.recaptchaFirst !== '' || this.messenger.upload !== ''">
 <div class="input-group">
   <div class="input-group-prepend">
     <span class="input-group-text" id="inputGroupFileAddon01">Upload</span>
@@ -21,9 +21,10 @@
 </div>
 <div class="input-group">
   <div *ngFor="let message of messenger.messages | keyvalue" class="col-10">
-    <div class="upload-progress" style="width: {{message.value.percent}}%;"></div>
+    <div class="upload-progress" [style.width.%]="message.value.percent"></div>
     <span class="upload-progress-msg">{{message.value.msg}}</span>
   </div>
 </div>
 </div>
+<span class="help-block" *ngIf="this.messenger.recaptchaFirst !== '' || this.messenger.upload !== ''">{{ this.messenger.upload }} {{ this.messenger.recaptchaFirst }}</span>
 </div>

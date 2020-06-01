@@ -8,7 +8,6 @@ import { of } from 'rxjs';
 import {catchError, last, map, tap} from 'rxjs/operators';
 
 import { MessageService } from '../message.service';
-import {FormControl} from '@angular/forms';
 
 @Injectable()
 export class UploaderService {
@@ -19,13 +18,16 @@ export class UploaderService {
   upload(messenger: MessageService, uid: string, file: File) {
     if (!File) { return; }
     this.messenger = messenger;
+    this.messenger.upload = '';
 
     const formData = new FormData();
     formData.append('file', file, file.name);
-    console.log(uid);
     formData.append('uid', uid);
 
-    const req = new HttpRequest('POST', 'http://c4d75740.ngrok.io/api/', formData, {reportProgress: true, responseType: 'json'});
+    const req = new HttpRequest('POST',
+      'https://lac-edwebtools.is.ed.ac.uk/cc/api/',
+      formData,
+      {reportProgress: true, responseType: 'json'});
 
     return this.http.request(req).pipe(
       map(event => this.getEventMessage(event, file)),
@@ -37,7 +39,12 @@ export class UploaderService {
 
   /** Return distinct message for sent, upload progress, & response events */
   private getEventMessage(event: HttpEvent<any>, file: File) {
-    const obj = { file: file.name, event: event.type, msg: '', percent: 100, body: null };
+    const obj = { file: file.name,
+      size: file.size,
+      event: event.type,
+      msg: '',
+      percent: 100,
+      body: null };
 
     switch (event.type) {
       case HttpEventType.Sent:
@@ -45,7 +52,12 @@ export class UploaderService {
         break;
       case HttpEventType.UploadProgress:
         // Compute and show the % done:
-        obj.percent = Math.round(100 * event.loaded / event.total);
+        obj.percent = Math.floor(100 * event.loaded / event.total);
+
+        if(obj.percent === 100) {
+          obj.percent -= 1;
+        }
+
         obj.msg = `"${file.name}" is ${obj.percent}% uploaded.`;
         break;
       case HttpEventType.Response:

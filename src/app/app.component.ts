@@ -1,8 +1,7 @@
-import {Component, ViewChild} from '@angular/core';
-import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ValidatorFn, Validators} from '@angular/forms';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Component, ElementRef, ViewChild} from '@angular/core';
+import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {HttpClient} from '@angular/common/http';
 import {MessageService} from './message.service';
-import {requireCheckboxesToBeCheckedValidator} from './require-checkboxes-to-be-checked.validator';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +12,10 @@ import {requireCheckboxesToBeCheckedValidator} from './require-checkboxes-to-be-
 })
 export class AppComponent {
   @ViewChild('fileUploadComponent') fileUploadComponent;
+  @ViewChild('summaryElement') summaryElement: ElementRef;
+  @ViewChild('form') form: ElementRef;
   recaptchaValue: string;
+  summary: boolean;
 
   inputForm = this.fb.group({
     email: ['', Validators.required],
@@ -23,14 +25,7 @@ export class AppComponent {
     affiliation: ['', Validators.required],
     location: [''],
     description: ['', Validators.required],
-    otherContentType: [''],
     recaptchaReactive: [''],
-    /*content_type_photos: [''],
-    content_type_videos: [''],
-    content_type_audio: [''],
-    content_type_url: [''],
-    content_type_text: [''],
-    other_content_type: [''],*/
     copy: ['', Validators.required],
     content: this.fb.group( {
       photos: [''],
@@ -38,19 +33,41 @@ export class AppComponent {
       audio: [''],
       url: [''],
       text: [''],
-      otherContentType: ['']
+      otherContentType: [''],
+      urls: this.fb.array([])
     }, { validator: this.requireOneCheckboxToBeChecked }),
     additionalCreators: this.fb.array([
       this.fb.control('')
     ]),
-    urls: this.fb.array([
-      this.fb.control('')
-    ])
   });
+
+  //  this.fb.control('', [ Validators.required, Validators.minLength(7) ])
+
+
+  humanFileSize(bytes, si= false, dp= 1) {
+    const thresh = si ? 1000 : 1024;
+
+    if (Math.abs(bytes) < thresh) {
+      return bytes + ' B';
+    }
+
+    const units = si
+      ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+      : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+    let u = -1;
+    const r = 10 ** dp;
+
+    do {
+      bytes /= thresh;
+      ++u;
+    } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+
+
+    return bytes.toFixed(dp) + ' ' + units[u];
+  }
 
   requireOneCheckboxToBeChecked(g: FormGroup) {
     let checked = 0;
-    console.log(g.controls);
 
     Object.keys(g.controls).forEach(key => {
       const control = g.controls[key];
@@ -60,16 +77,32 @@ export class AppComponent {
       }
     });
 
-    if (checked < 1) {
-      Object.keys(g.controls).forEach(key => {
+
+    Object.keys(g.controls).forEach(key => {
         const control = g.controls[key];
 
-        control.setErrors({ oneCheckboxRequired: true });
+        if (checked < 1) {
+          control.setErrors({oneCheckboxRequired: true});
+        }
+        else {
+          control.setErrors(null);
+        }
 
       });
-    }
 
     return false;
+  }
+
+  selectUrl() {
+    if (this.urls.controls.length === 0) {
+      this.addURL();
+      this.messenger.upload = '';
+    }
+    else {
+      while (this.urls.controls.length) {
+        this.removeURL();
+      }
+    }
   }
 
   get content() {
@@ -97,88 +130,182 @@ export class AppComponent {
   }
 
   get urls() {
-    return this.inputForm.get('urls') as FormArray;
+    return this.content.get('urls') as FormArray;
   }
 
   addURL() {
-    this.urls.push(this.fb.control(''));
+    this.urls.push(this.fb.control('', [ Validators.required ]));
   }
 
   removeURL() {
     this.urls.removeAt(this.urls.length - 1);
   }
 
+  get otherValid() {
+    return this.messenger.recaptchaFirst === '' && this.messenger.upload === '';
+  }
+
   get isreCaptchaValid()  {
     return this.inputForm.controls.recaptchaReactive.valid && this.recaptchaValue;
   }
 
-  get isNameValid() {
-    return this.inputForm.controls.name.untouched || this.inputForm.controls.name.valid;
+  isValid(control: string): boolean {
+    return this.inputForm.controls[control].untouched || this.inputForm.controls[control].valid;
   }
 
-  get isEmailValid() {
-    return this.inputForm.controls.email.untouched || this.inputForm.controls.email.valid;
+  unCheck() {
+    this.content.markAllAsTouched();
+    if (this.findCheckedControls().length === 0 || this.content.controls.otherContentType.value === '') {
+      this.messenger.upload = '';
+    }
   }
-
-  /*get urlNotEmpty() {
-    return this.inputForm.controls.url.value && this.urls.controls[0].value == ! '';
-  }
-
-  get contentSelected() {
-    return true; this.inputForm.controls.content_type_photos.value || this.inputForm.controls.content_type_videos.value ||
-      this.inputForm.controls.content_type_audio.value || this.urlNotEmpty ||
-      this.inputForm.controls.content_type_text.value || this.inputForm.controls.other_content_type.value;
-  }*/
 
   get isNotSoleCreator() {
     return this.inputForm.controls.creator.value === 'No';
   }
 
-  constructor(private http: HttpClient, private fb: FormBuilder, public messenger: MessageService) { }
+  get contentSummary()  {
+    let summary = 'You are submitting ';
+    const content = [];
 
-  reset(resp) {
-    if (resp.success) {
-      this.recaptchaValue = undefined;
-      this.inputForm.reset();
-      this.messenger.reset();
+    for ( const c of ['photos', 'videos', 'audio', 'text', 'url'] ) {
+      if (this.content.controls[c].value)  {
+        if (c === 'url') {
+          if (this.urls.controls.length === 1) {
+            content.push('a website URL');
+          } else {
+            content.push('website URLs');
+          }
+        }
+        else {
+          content.push(c);
+        }
+      }
     }
+
+    if (this.content.controls.otherContentType.value !== '')  {
+      content.push(this.content.controls.otherContentType.value);
+    }
+
+    if (content.length === 0)  {
+      return '';
+    }
+    else if (content.length === 1)  {
+      summary += content[0] + '.';
+    }
+    else {
+      for (let i = 0; i < content.length - 1; i++) {
+        summary += content[i] + ', ';
+      }
+
+      summary = summary.slice(0, summary.length - 2) + ' and ' + content[content.length - 1] + '.';
+
+    }
+
+    return summary;
   }
 
+  constructor(private http: HttpClient, private fb: FormBuilder, public messenger: MessageService) {
+    this.summary = false;
+  }
+
+  reset(scroll= false) {
+    this.recaptchaValue = undefined;
+    this.summary = false;
+    this.messenger.recaptchaFirst = '';
+    this.messenger.upload = '';
+    this.inputForm.reset();
+    this.urls.clear();
+    this.messenger.reset();
+
+    if (scroll) {
+      this.form.nativeElement.scrollIntoView({behavior: 'smooth'});
+    }
+
+  }
+ // https://lac-edwebtools.is.ed.ac.uk/cc
   recaptcha(event)  {
-    this.http.get('http://localhost:5000/recaptcha/' + event).subscribe( data => this.setRecaptcha(data, event), );
+    this.http.get('https://lac-edwebtools.is.ed.ac.uk/cc/recaptcha/' + event)
+      .subscribe( data => { this.setRecaptcha(data, event); }, error => { this.messenger.errors.push(error); });
 
   }
 
   setRecaptcha(data, event)  {
     if (data.success)  {
       this.recaptchaValue = event;
+      this.messenger.recaptchaFirst = '';
     }
   }
 
-  clickSubmit()  {
-    // Clear past errors
-    this.messenger.errors = [];
-
-    // Submission attempted, treat as traversed
-    this.inputForm.markAllAsTouched();
-
-    // Check if files are uploaded
-    if (this.messenger.completed === 0) {
-      this.messenger.errors.push(new Error('You haven\'t uploaded any files.'));
+  public findInvalidControls() {
+    const invalid = [];
+    const controls = this.inputForm.controls;
+    for (const name in controls) {
+      if (controls[name].invalid) {
+        invalid.push(name);
+      }
     }
+    return invalid;
+  }
 
-    // Check if recaptcha has been done
-    if (!this.isreCaptchaValid) {
-      this.messenger.errors.push(new Error('You haven\'t validated yourself as being human.'));
+  public findCheckedControls() {
+    const checked = [];
+    const controls = this.content.controls;
+    for (const name in controls) {
+      if (name !== 'url' && controls[name].value === true) {
+        checked.push(name);
+      }
     }
+    return checked;
+  }
 
-    if (this.inputForm.valid)  {
-      this.http.post('http://localhost:5000/api/', JSON.stringify(this.inputForm.value)).subscribe(resp => { this.reset(resp); },
+  confirmDeposit() {
+    if (!this.summary) {
+      // Clear past errors
+      this.messenger.errors = [];
+
+      // Submission attempted, treat as traversed
+      this.inputForm.markAllAsTouched();
+
+      // Check if files are uploaded
+      if ((!this.content.controls.url.value || this.findCheckedControls().length > 0) && this.messenger.completed === 0) {
+        this.messenger.upload = 'Please either upload one or more files or fill in one or more URLs.';
+      }
+
+      // Check if recaptcha has been done
+      if (!this.isreCaptchaValid) {
+        this.messenger.recaptchaFirst = 'Before uploading files, please validate yourself as being human using the reCaptcha at the bottom of the form.';
+      }
+
+      if (this.inputForm.valid && this.otherValid)  {
+        this.summary = true;
+        setTimeout(() => this.summaryElement.nativeElement.scrollIntoView({behavior: 'smooth'}), 50);
+
+      }
+      else {
+        const invalids = this.findInvalidControls();
+
+        if (invalids.length > 2 || invalids.indexOf('copy') === -1) {
+          this.form.nativeElement.scrollIntoView({behavior: 'smooth'});
+        }
+      }
+
+    }
+    else {
+      this.http.post('https://lac-edwebtools.is.ed.ac.uk/cc/api/',
+        JSON.stringify(this.inputForm.value))
+        .subscribe(resp => { this.handleResponse(resp); },
         error => this.messenger.errors.push(error));
-      console.log(JSON.stringify(this.inputForm.value));
 
     }
 
   }
 
+  handleResponse(resp)  {
+    if (resp.success) {
+      this.reset();
+      this.messenger.success = 'You will get a confirmation email with further details.';
+      setTimeout(() => { this.messenger.success = ''; this.summary = false; }, 5000);
+    }
+  }
 }

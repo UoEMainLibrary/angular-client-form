@@ -1,7 +1,6 @@
-import {Component, EventEmitter, Host, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { UploaderService } from './file-upload.service';
 import {MessageService} from '../message.service';
-import {FormControl} from '@angular/forms';
 
 @Component({
   selector: 'app-file-upload',
@@ -21,7 +20,7 @@ export class FileUploadComponent implements OnInit {
 
   clicked() {
     if (!this.recaptchaValue) {
-      this.messenger.errors.push(new Error('You haven\'t validated yourself as being human.'));
+      this.messenger.recaptchaFirst = 'Before uploading files, please validate yourself as being human using the reCaptcha at the bottom of the form.';
       return false;
     }
   }
@@ -52,10 +51,6 @@ export class FileUploadComponent implements OnInit {
       this.uploaderService.upload(this.messenger, this.uid, files[i]).subscribe(resp => this.setAppUid(resp));
     }
   }
-
-  /*reset() {
-    this.messenger.reset();
-  }*/
 
   setAppUid(resp)  {
     if (resp.body.dest_folder) {
