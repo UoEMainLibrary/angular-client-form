@@ -47,7 +47,7 @@ input.ng-invalid.ng-touched,textarea.ng-invalid.ng-touched {
 }
 
 .title {
-  font-family: Perpetua;
+  font-family: 'Source Sans Pro',sans-serif;
   font-size: 28pt;
   text-transform: uppercase;
   padding: 0.5em;
